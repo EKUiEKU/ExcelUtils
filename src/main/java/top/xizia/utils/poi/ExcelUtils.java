@@ -241,7 +241,7 @@ public class ExcelUtils {
 
             if (excel.isMultipleHeaders()) {
                 if (parentObject != null) {
-                    readMultiFieldInfo(field1, rowData, field1.get(parentObject));
+                    readMultiFieldInfo(field1, rowData, parentObject);
                 } else {
                     Object instance = emptyInstanceCache.get(field1.getDeclaringClass().getName());
 

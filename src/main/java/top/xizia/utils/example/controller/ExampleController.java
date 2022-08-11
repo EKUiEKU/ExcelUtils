@@ -31,6 +31,7 @@ public class ExampleController {
         fourth.setTest4("测试4");
         fourth.setTest5("测试5");
 
+
         Third third = new Third();
         third.setTest1("测试1");
         third.setTest2("测试2");
@@ -40,19 +41,20 @@ public class ExampleController {
         unit.setDateLine(0L);
         unit.setOvertimeTime(0L);
         unit.setSpendTime(0L);
-
+        unit.setThird(third);
 
         dto.setArrival("CAN");
         dto.setBusinessBag(unit);
         dto.setHandover(unit);
         dto.setSortingMail(unit);
+        dto.setOrderDeliveryTimeDifference(unit);
 
         List<FlightNoticeArrivalDetailDTO> ret = new ArrayList<>();
 
         /**
          * 不建议导出10W条数据以上,如想尝试则需调整JVM的堆上限
          */
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             dto.setFlightNo(System.currentTimeMillis() + "");
             ret.add(dto);
         }
