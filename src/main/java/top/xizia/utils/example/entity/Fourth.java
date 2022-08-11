@@ -17,6 +17,31 @@ public class Fourth {
     @Excel("测试五")
     private String test5;
 
+
+    @Excel(value = "第五", isMultipleHeaders = true)
+    private Five five;
+
+    @Excel("测试六")
+    private String test6;
+
+
+    public String getTest6() {
+        return test6;
+    }
+
+
+    public Five getFive() {
+        return five;
+    }
+
+    public void setFive(Five five) {
+        this.five = five;
+    }
+
+    public void setTest6(String test6) {
+        this.test6 = test6;
+    }
+
     public String getTest3() {
         return test3;
     }
