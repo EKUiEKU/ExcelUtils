@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +32,10 @@ public class ExcelUtils {
 
     private static Map<String, Object> emptyInstanceCache = null;
 
+    private static Map<Long, BigDecimal> calculateMap = null;
+    private static Map<String, Aggregation> aggregationMap = null;
+    private static Map<Long, Aggregation> aggregationIndexMap = null;
+
     public static <T> void realDownloadExcel(List<T> arr, HttpServletResponse response) throws IllegalAccessException, IOException, InstantiationException {
         maxHeadRow = 1;
         startIndex = -1;
@@ -46,6 +52,9 @@ public class ExcelUtils {
             List<List<Object>> mergeColumnInfo = new ArrayList<>();
             parentChildFieldMap = new HashMap<>();
             emptyInstanceCache = new HashMap<>();
+            aggregationMap = new HashMap<>();
+            calculateMap = new HashMap<>();
+            aggregationIndexMap = new HashMap<>();
 
             /**
              * 获取父类的所有字段
@@ -57,6 +66,7 @@ public class ExcelUtils {
                     field.setAccessible(true);
                     mainFields.add(field);
                     excelMap.put(field.getName(), field.getAnnotation(Excel.class));
+                    resignAggregationIfNecessary(field);
                     int cnt = resignMultiHeadFieldInfoIfNecessary(field, 1, mainFields, excelMap, mergeColumnInfo, startIndex);
                     startIndex += (cnt == 0) ? 0 : cnt - 1;
                 }
@@ -72,6 +82,7 @@ public class ExcelUtils {
                     field.setAccessible(true);
                     mainFields.add(field);
                     excelMap.put(field.getName(), field.getAnnotation(Excel.class));
+                    resignAggregationIfNecessary(field);
                     int cnt = resignMultiHeadFieldInfoIfNecessary(field, 1, mainFields, excelMap, mergeColumnInfo, startIndex);
                     startIndex += (cnt == 0) ? 0 : cnt - 1;
                 }
@@ -131,25 +142,92 @@ public class ExcelUtils {
 
                     Excel excel = excelMap.get(field.getName());
 
-                    if (excel != null && excel.isIndex()) {
-                        /**
-                         * 表头是序号
-                         */
-                        rowData.add(idx + "");
-                    } else if (excel.isMultipleHeaders()) {
-                        /**
-                         * 多级表头
-                         */
-                        readMultiFieldInfo(field, rowData, t);
 
-                    } else {
-                        Object fValue = field.get(t);
-                        Object value = isObjectEmpty(fValue) ? "" : fValue;
-                        rowData.add(value + "");
+                    if (excel != null) {
+                        Aggregation aggregation = aggregationMap.get(field.getName());
+
+                        if (excel.isIndex()) {
+                            /**
+                             * 表头是序号
+                             */
+                            rowData.add(idx + "");
+                        } else if (excel.isMultipleHeaders()) {
+                            /**
+                             * 多级表头
+                             */
+                            readMultiFieldInfo(field, rowData, t);
+
+                        } else {
+                            Object fValue = field.get(t);
+
+                            if (fValue == null) {
+                                fValue = emptyInstanceCache.get(field.getName());
+                            }
+
+                            if (aggregation != null && fValue instanceof Number) {
+                                if (!aggregationIndexMap.containsKey(Long.valueOf(i))) {
+                                    aggregationIndexMap.put(Long.valueOf(i), aggregation);
+                                }
+
+                                BigDecimal decimal = calculateMap.get(Long.valueOf(i));
+
+                                BigDecimal tmpNumber = null;
+                                if (fValue instanceof BigDecimal) {
+                                    tmpNumber = (BigDecimal) fValue;
+                                } else {
+                                    tmpNumber = BigDecimal.valueOf(Long.valueOf(fValue + ""));
+                                }
+
+                                if (decimal == null) {
+                                    calculateMap.put(Long.valueOf(i), tmpNumber);
+                                } else {
+                                    decimal = decimal.add(tmpNumber);
+                                    calculateMap.put(Long.valueOf(i), decimal);
+                                }
+                            }
+
+                            Object value = isObjectEmpty(fValue) ? "" : fValue;
+                            rowData.add(value + "");
+                        }
                     }
                 }
 
                 dataList.add(rowData);
+            }
+
+            String[] sumCalculate = new String[columnList.size()];
+            String[] avgCalculate = new String[columnList.size()];
+            Boolean hasSumCalculate = false;
+            Boolean hasAvgCalculate = false;
+            if (calculateMap.size() != 0) {
+                sumCalculate[0] = "总计";
+                Set<Map.Entry<Long, BigDecimal>> entries = calculateMap.entrySet();
+                for (Map.Entry<Long, BigDecimal> entry : entries) {
+                    int i = entry.getKey().intValue();
+                    Aggregation aggregation = aggregationIndexMap.get(Long.valueOf(i));
+                    if (aggregation.equals(Aggregation.SUM)) {
+                        sumCalculate[entry.getKey().intValue()] = entry.getValue().toString();
+                        hasSumCalculate = true;
+                    }else if (aggregation.equals(Aggregation.AVG)) {
+                        avgCalculate[entry.getKey().intValue()] = entry.getValue().toString();
+                        hasAvgCalculate = true;
+                    }else if(aggregation.equals(Aggregation.BOTH)) {
+                        sumCalculate[entry.getKey().intValue()] = entry.getValue().toString();
+                        avgCalculate[entry.getKey().intValue()] = entry.getValue().divide(BigDecimal.valueOf(dataList.size()), RoundingMode.HALF_UP).toString();
+                        hasSumCalculate = true;
+                        hasAvgCalculate = true;
+                    }
+                }
+
+                if (hasSumCalculate) {
+                    sumCalculate[0] = "总计";
+                    dataList.add(Arrays.asList(sumCalculate));
+                }
+
+                if (hasAvgCalculate) {
+                    avgCalculate[0] = "平均值";
+                    dataList.add(Arrays.asList(avgCalculate));
+                }
             }
 
             /**
@@ -176,6 +254,13 @@ public class ExcelUtils {
             writer.write(dataList);
             writer.flush(outputStream, true);
             writer.close();
+        }
+    }
+
+    public static void resignAggregationIfNecessary(Field field) {
+        Excel excel = excelMap.get(field.getName());
+        if (excel != null && !excel.aggregation().equals(Aggregation.NONE)) {
+            aggregationMap.put(field.getName(), excel.aggregation());
         }
     }
 
@@ -258,6 +343,36 @@ public class ExcelUtils {
                     rowData.add("");
                 } else {
                     Object fValue = field1.get(parentObject);
+
+                    if (fValue == null) {
+                        fValue = emptyInstanceCache.get(field1.getName());
+                    }
+
+                    Aggregation aggregation = aggregationMap.get(field1.getName());
+                    if (aggregation != null && fValue instanceof Number) {
+                        Long i = Long.valueOf(rowData.size());
+
+                        if (!aggregationIndexMap.containsKey(Long.valueOf(i))) {
+                            aggregationIndexMap.put(Long.valueOf(i), aggregation);
+                        }
+                        BigDecimal decimal = calculateMap.get(Long.valueOf(i));
+
+                        BigDecimal tmpNumber = null;
+                        if (fValue instanceof BigDecimal) {
+                            tmpNumber = (BigDecimal) fValue;
+                        } else {
+                            tmpNumber = BigDecimal.valueOf(Long.valueOf(fValue + ""));
+                        }
+
+                        if (decimal == null) {
+                            calculateMap.put(Long.valueOf(i), tmpNumber);
+                        } else {
+                            decimal = decimal.add(tmpNumber);
+                            calculateMap.put(Long.valueOf(i), decimal);
+                        }
+
+                    }
+
                     Object value = isObjectEmpty(fValue) ? "" : fValue;
                     rowData.add(value + "");
                 }
@@ -296,7 +411,7 @@ public class ExcelUtils {
             if (childExcel != null) {
                 childFields.add(field);
                 excelMap.put(field.getName(), childExcel);
-
+                resignAggregationIfNecessary(field);
                 if (childExcel.isMultipleHeaders()) {
                     cnt += resignMultiHeadFieldInfoIfNecessary(field, parentCurrentRow + 1, mainFields, excelMap, mergeColumnInfo, mStartIndex + cnt);
                 } else {

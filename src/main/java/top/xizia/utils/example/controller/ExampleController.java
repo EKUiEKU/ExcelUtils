@@ -26,6 +26,7 @@ public class ExampleController {
     @GetMapping("/download")
     public void test(HttpServletResponse response) throws IOException, IllegalAccessException, InstantiationException {
         FlightNoticeArrivalDetailDTO dto = new FlightNoticeArrivalDetailDTO();
+        dto.setPieces(2);
         Fourth fourth = new Fourth();
         fourth.setTest3("测试3");
         fourth.setTest4("测试4");

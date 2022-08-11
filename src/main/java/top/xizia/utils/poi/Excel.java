@@ -30,4 +30,6 @@ public @interface Excel {
      * @return
      */
     boolean isMultipleHeaders() default false;
+
+    Aggregation aggregation() default Aggregation.NONE;
 }

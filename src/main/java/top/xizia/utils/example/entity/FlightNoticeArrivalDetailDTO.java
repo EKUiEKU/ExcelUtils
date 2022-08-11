@@ -1,6 +1,7 @@
 package top.xizia.utils.example.entity;
 
 
+import top.xizia.utils.poi.Aggregation;
 import top.xizia.utils.poi.Excel;
 
 import java.math.BigDecimal;
@@ -21,6 +22,14 @@ public class FlightNoticeArrivalDetailDTO{
      */
     @Excel(value = "承运人", sort = 1)
     private String carrier;
+    /**
+     * 件数
+     */
+    @Excel(value = "件数", aggregation = Aggregation.SUM, sort = 2)
+    private Integer pieces;
+
+    @Excel(value = "重量", aggregation = Aggregation.SUM, sort = 2)
+    private BigDecimal weight;
     /**
      * 航班日期
      */
@@ -231,5 +240,13 @@ public class FlightNoticeArrivalDetailDTO{
 
     public void setOrderDeliveryTimeDifference(FlightNoticeArrivalReportUnit orderDeliveryTimeDifference) {
         this.orderDeliveryTimeDifference = orderDeliveryTimeDifference;
+    }
+
+    public Integer getPieces() {
+        return pieces;
+    }
+
+    public void setPieces(Integer pieces) {
+        this.pieces = pieces;
     }
 }
