@@ -8,9 +8,9 @@ import top.xizia.utils.poi.Excel;
  * @DESCRIBE:
  **/
 public class Five {
-    @Excel("你好")
+    @Excel(value = "你好", width = 10)
     private String hello;
 
-    @Excel("世界")
+    @Excel(value = "世界", width = 10)
     private String world;
 }

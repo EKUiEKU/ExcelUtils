@@ -8,10 +8,10 @@ import top.xizia.utils.poi.Excel;
  * @DESCRIBE:
  **/
 public class Third {
-    @Excel("测试1")
+    @Excel(value = "测试1", width = 10)
     private String test1;
 
-    @Excel("测试2")
+    @Excel(value = "测试2", width = 10)
     private String test2;
 
     @Excel(value = "第四", isMultipleHeaders = true)

@@ -15,95 +15,95 @@ public class FlightNoticeArrivalDetailDTO{
     /**
      * 序号
      */
-    @Excel(value = "序号", isIndex = true)
+    @Excel(value = "序号", isIndex = true, width = 10)
     private Long idx;
     /**
      * 承运人
      */
-    @Excel(value = "承运人", sort = 1)
+    @Excel(value = "承运人", sort = 1, width = 15)
     private String carrier;
     /**
      * 件数
      */
-    @Excel(value = "件数", aggregation = Aggregation.SUM, sort = 2)
+    @Excel(value = "件数", aggregation = Aggregation.SUM, sort = 2, width = 10)
     private Integer pieces;
 
-    @Excel(value = "重量", aggregation = Aggregation.SUM, sort = 2)
+    @Excel(value = "重量", aggregation = Aggregation.SUM, sort = 2, width = 10)
     private BigDecimal weight;
     /**
      * 航班日期
      */
-    @Excel(value = "航班日期", sort = 2)
+    @Excel(value = "航班日期", sort = 2, width = 15)
     private Long flightDate;
     /**
      * 航班号
      */
-    @Excel(value = "航班号", sort = 3)
+    @Excel(value = "航班号", sort = 3, width = 15)
     private String flightNo;
     /**
      * 航班始发站
      */
-    @Excel(value = "航班始发站", sort = 4)
+    @Excel(value = "航班始发站", sort = 4, width = 10)
     private String departure;
     /**
      * 航班目的站
      */
-    @Excel(value = "航班目的站", sort = 5)
+    @Excel(value = "航班目的站", sort = 5, width = 10)
     private String arrival;
     /**
      * 货单数 计划运单票数
      */
-    @Excel(value = "货单数", sort = 6)
+    @Excel(value = "货单数", sort = 6, width = 10)
     private Integer waybillNumbers;
     /**
      * 货物件数
      */
-    @Excel(value = "货物件数", sort = 7)
+    @Excel(value = "货物件数", sort = 7, width = 10)
     private Integer cargoPieces;
     /**
      * 货物重量
      */
-    @Excel(value = "货物重量", sort = 8)
+    @Excel(value = "货物重量", sort = 8, width = 10)
     private BigDecimal cargoWeight;
     /**
      * 邮件重量
      */
-    @Excel(value = "邮件重量", sort = 9)
+    @Excel(value = "邮件重量", sort = 9, width = 10)
     private BigDecimal mailWeight;
     /**
      * 货邮总重量
      */
-    @Excel(value = "货邮总重量", sort = 10)
+    @Excel(value = "货邮总重量", sort = 10, width = 10)
     private BigDecimal totalWeight;
     /**
      * 国内中转货量
      */
-    @Excel(value = "国内中转货量", sort = 11)
+    @Excel(value = "国内中转货量", sort = 11, width = 10)
     private BigDecimal domesticTransitWeight;
     /**
      * 国际中转货量
      */
-    @Excel(value = "国际中转货量", sort = 12)
+    @Excel(value = "国际中转货量", sort = 12, width = 10)
     private BigDecimal internationalTransitWeight;
     /**
      * 多表头 分拣货邮
      */
-    @Excel(value = "分拣货邮", sort = 99, isMultipleHeaders = true)
+    @Excel(value = "分拣货邮", sort = 99, isMultipleHeaders = true, width = 10)
     private FlightNoticeArrivalReportUnit sortingMail;
     /**
      * 多表头 交卸交接
      */
-    @Excel(value = "交卸交接", sort = 100, isMultipleHeaders = true)
+    @Excel(value = "交卸交接", sort = 100, isMultipleHeaders = true, width = 10)
     private FlightNoticeArrivalReportUnit handover;
     /**
      * 多表头 交接袋
      */
-    @Excel(value = "交接袋", sort = 101, isMultipleHeaders = true)
+    @Excel(value = "交接袋", sort = 101, isMultipleHeaders = true, width = 10)
     private FlightNoticeArrivalReportUnit businessBag;
     /**
      * 多表头 提单交货时间差
      */
-    @Excel(value = "提单交货时间差", sort = 102, isMultipleHeaders = true)
+    @Excel(value = "提单交货时间差", sort = 102, isMultipleHeaders = true, width = 10)
     private FlightNoticeArrivalReportUnit orderDeliveryTimeDifference;
 
     public Long getIdx() {

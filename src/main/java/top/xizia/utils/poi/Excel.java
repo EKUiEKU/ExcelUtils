@@ -3,6 +3,7 @@ package top.xizia.utils.poi;
 import java.lang.annotation.*;
 
 /**
+ * @author wsc
  * @NAME: WSC
  * @DATE: 2021/12/2
  * @DESCRIBE:
@@ -31,5 +32,15 @@ public @interface Excel {
      */
     boolean isMultipleHeaders() default false;
 
+    /**
+     * 表格宽度
+     * @return
+     */
+    int width() default 10;
+
+    /**
+     * 总计/平均值
+     * @return
+     */
     Aggregation aggregation() default Aggregation.NONE;
 }

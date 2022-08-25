@@ -11,20 +11,20 @@ public class FlightNoticeArrivalReportUnit {
     /**
      * 用时
      */
-    @Excel("用时")
+    @Excel(value = "用时", width = 10)
     private Long spendTime;
     /**
      * 时限
      */
-    @Excel(value = "时限", sort = 1)
+    @Excel(value = "时限", sort = 1, width = 10)
     private Long dateLine;
     /**
      * 超时时间
      */
-    @Excel(value = "超时时间",sort = 2)
+    @Excel(value = "超时时间",sort = 2, width = 10)
     private Long overtimeTime;
 
-    @Excel(value = "第三", isMultipleHeaders = true)
+    @Excel(value = "第三", isMultipleHeaders = true, width = 10)
     private Third third;
 
 
